@@ -10,3 +10,6 @@ __pycache__/
 # Node / Next.js (para cuando agregues el frontend)
 node_modules/
 .next/
+
+# Build metadata
+*.egg-info/

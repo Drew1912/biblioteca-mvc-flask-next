@@ -1,0 +1,34 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { api, User } from "../../lib/api";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      await api<{ user: User }>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+      router.push("/");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "No se pudo iniciar sesión");
+    } finally { setLoading(false); }
+  }
+
+  return <main className="login"><form className="login-card" onSubmit={submit}>
+    <span className="eyebrow">Biblioteca virtual</span>
+    <h1>Bienvenido</h1><p>Accede al centro de gestión de tu biblioteca.</p>
+    <label className="field">Correo<input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+    <label className="field">Contraseña<input type="password" required value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+    {error && <div className="error">{error}</div>}
+    <button className="primary" disabled={loading}>{loading ? "Entrando..." : "Iniciar sesión"}</button>
+  </form></main>;
+}
