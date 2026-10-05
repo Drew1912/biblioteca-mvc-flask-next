@@ -1,8 +1,8 @@
 import click
 from sqlalchemy.exc import IntegrityError
 
-from main import db
-from app.model.material import Material
+from app.main import db
+from app.model.catalogo import materials as list_materials_data
 from app.model.materiales import create_material, delete_material, get_material, update_material
 from app.view.consola import print_rows
 
@@ -29,7 +29,7 @@ def register_material_commands(library: click.Group) -> None:
     def list_materials() -> None:
         print_rows(["ID", "Tipo", "Título", "ISBN", "Disponibles"],
                    ((item.id, item.tipo_material, item.title, item.isbn, f"{item.available_copies}/{item.total_copies}")
-                    for item in Material.query.order_by(Material.id).all()))
+                    for item in list_materials_data()))
 
     @materials.command("get")
     @click.option("--id", "material_id", type=int, required=True)

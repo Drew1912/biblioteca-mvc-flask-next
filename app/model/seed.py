@@ -1,6 +1,8 @@
+from app.model.transaction import transactional
+from flask import current_app
 from datetime import UTC, datetime, timedelta
 
-from main import db
+from app.main import db
 from app.model.material import Libro, Material, Revista, Tesis
 from app.model.persona import Administrador, Bibliotecario, Doctor, Estudiante, Persona
 from app.model.prestamo import Prestamo
@@ -10,10 +12,14 @@ MATERIAL_TYPES = (Libro, Revista, Tesis)
 USER_TYPES = (Administrador, Bibliotecario, Doctor)
 
 
+@transactional
 def seed_database(reset: bool = False) -> dict[str, int]:
+    if current_app.config["APP_ENV"] == "production":
+        raise ValueError("Semilla deshabilitada en producción")
     if reset:
         _clear_database()
     elif Material.query.count() or Persona.query.count() or Prestamo.query.count():
+        _development_passwords()
         return _counts()
 
     materials = [
@@ -21,7 +27,7 @@ def seed_database(reset: bool = False) -> dict[str, int]:
             title=f"Material de prueba {index:02d}",
             isbn=f"TEST-{index:04d}",
             total_copies=3,
-            available_copies=1,
+            available_copies=2,
         )
         for index, material_type in ((index, MATERIAL_TYPES[index % 3]) for index in range(1, 21))
     ]
@@ -48,7 +54,6 @@ def seed_database(reset: bool = False) -> dict[str, int]:
         for index in range(1, 21)
     ]
     db.session.add_all(loans)
-    db.session.commit()
     return _counts()
 
 
@@ -56,7 +61,6 @@ def _clear_database() -> None:
     db.session.query(Prestamo).delete()
     db.session.query(Material).delete()
     db.session.query(Persona).delete()
-    db.session.commit()
 
 
 def _counts() -> dict[str, int]:
@@ -65,3 +69,12 @@ def _counts() -> dict[str, int]:
         "personas": Persona.query.count(),
         "prestamos": Prestamo.query.count(),
     }
+
+
+def _development_passwords():
+    for prefix, name in (("lector", "Lector de prueba"), ("usuario", "Usuario de prueba")):
+        for index in range(1, 21):
+            person = Persona.query.filter_by(email=f"{prefix}{index:02d}@test.local",
+                                             name=f"{name} {index:02d}").first()
+            if person and not person.password_hash:
+                person.set_password("Biblioteca123!")

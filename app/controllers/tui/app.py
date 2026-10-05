@@ -1,7 +1,6 @@
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Container
-from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Label
 
 from app.controllers.tui.management import ManagementScreen

@@ -7,7 +7,7 @@ from app.controllers.readers import register_reader_commands
 from app.controllers.reports import register_report_commands
 from app.controllers.users import register_user_commands
 from app.controllers.console import run_console
-from main import db
+from app.model.schema import initialize_database
 from app.model.seed import seed_database
 
 
@@ -15,20 +15,20 @@ def register_cli(app: Flask) -> None:
     @app.cli.command("console")
     def console() -> None:
         """Abre el TUI interactivo de la biblioteca."""
-        db.create_all()
+        initialize_database()
         run_console()
 
     @app.cli.command("init-db")
     def init_db() -> None:
         """Crea las tablas de la base de datos."""
-        db.create_all()
+        initialize_database()
         click.echo("Base de datos inicializada.")
 
     @app.cli.command("seed")
     @click.option("--reset", is_flag=True, help="Borra los datos actuales antes de sembrar.")
     def seed(reset: bool) -> None:
         """Carga datos de prueba: 20 materiales, 40 personas y 20 préstamos."""
-        db.create_all()
+        initialize_database()
         counts = seed_database(reset=reset)
         click.echo(
             f"Datos listos: {counts['materiales']} materiales, "

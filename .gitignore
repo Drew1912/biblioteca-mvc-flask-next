@@ -13,3 +13,11 @@ node_modules/
 
 # Build metadata
 *.egg-info/
+.pytest_cache/
+.ruff_cache/
+instance/
+*.tsbuildinfo
+.coverage
+htmlcov/
+web/test-results/
+web/playwright-report/

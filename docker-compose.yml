@@ -18,21 +18,24 @@ services:
   app:
     build: .
     environment:
-      FLASK_APP: main:create_app
+      FLASK_APP: app.main:create_app
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-biblioteca}:${POSTGRES_PASSWORD:-biblioteca}@db:5432/${POSTGRES_DB:-biblioteca}
       SECRET_KEY: ${SECRET_KEY:-change-this-development-secret}
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      APP_ENV: ${APP_ENV:-development}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-0}
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "flask --app main:create_app init-db && flask --app main:create_app run --host=0.0.0.0 --port=5000"
+    command: sh -c "flask --app app.main:create_app init-db && exec gunicorn --bind 0.0.0.0:5000 --workers 1 --threads 4 'app.main:create_app()'"
     ports:
       - "5000:5000"
 
   web:
-    build: ./web
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:5000/api/v1
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api/v1}
     ports:
       - "3000:3000"
     depends_on:

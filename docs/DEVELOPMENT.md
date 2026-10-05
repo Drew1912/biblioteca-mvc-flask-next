@@ -1,33 +1,37 @@
 # Desarrollo
 
-## Preparación
+## Entorno local
+
+Requiere Python 3.11+, Node 22 y pnpm 10.11.0.
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate
 make install
-```
-
-## Ejecución
-
-```bash
+pnpm --dir web install --frozen-lockfile
 make init-db
 make seed
-make console
+venv/bin/python -m flask --app app.main:create_app run --port 5000
+# En otra terminal:
+pnpm --dir web dev
 ```
 
-`make console` abre el TUI. El usuario puede navegar con mouse, Tab, flechas, Enter y Escape.
+Sin DATABASE_URL, Flask usa SQLite local en `instance/`. Web: http://localhost:3000.
+API: http://localhost:5000/api/v1. Usar el mismo hostname en ambos servicios;
+no mezclar localhost con 127.0.0.1 porque las cookies dependen del host.
 
-## Comandos CLI
+La semilla crea 20 materiales, 20 lectores, 20 usuarios internos y 20 préstamos.
+Cuentas ficticias: `usuario03@test.local` (administrador), `usuario01@test.local`
+(bibliotecario), `usuario02@test.local` (doctor), `lector01@test.local` (estudiante).
+Contraseña de desarrollo para todas: `Biblioteca123!`. No publicarlas en producción.
+
+## Consola
 
 ```bash
-venv/bin/python -m flask --app app:create_app library users list
-venv/bin/python -m flask --app app:create_app library readers list
-venv/bin/python -m flask --app app:create_app library materials list
-venv/bin/python -m flask --app app:create_app library loans list
-venv/bin/python -m flask --app app:create_app library reports
-venv/bin/python -m flask --app app:create_app seed --reset
+make console
+venv/bin/python -m flask --app app.main:create_app library --help
 ```
+
+No requiere login. Navegar con teclado y mouse; seleccionar entidades por etiqueta.
 
 ## Podman
 
@@ -35,16 +39,37 @@ venv/bin/python -m flask --app app:create_app seed --reset
 podman-compose config
 make build
 make up
-podman-compose run --rm app flask --app app:create_app seed --reset
+podman-compose exec app flask --app app.main:create_app seed --reset
 ```
 
-La imagen de PostgreSQL usa una referencia completa de registro para funcionar en hosts Podman sin aliases configurados.
+`make up` crea tablas, no borra datos ni ejecuta reset. La semilla es explícita.
+PostgreSQL persiste en volumen. `make down` conserva el volumen.
+`make console` ejecuta localmente; para el contenedor usar:
+`podman-compose exec app flask --app app.main:create_app console`.
 
-## Flujo de cambio
+Variables en `.env.example`: DATABASE_URL, SECRET_KEY, WEB_ORIGIN,
+NEXT_PUBLIC_API_URL, SESSION_COOKIE_SECURE y APP_ENV. La URL pública de API se
+incorpora durante build de Next.js: reconstruir web si cambia. CORS debe coincidir
+con el origen del navegador, no con el nombre interno del contenedor.
 
-1. Localizar la capa propietaria del comportamiento.
-2. Mantener cada archivo Python por debajo de 130 líneas.
-3. Añadir o actualizar una prueba enfocada.
-4. Ejecutar `make test` y `make lint`.
-5. Si cambia Compose, ejecutar `podman-compose config`.
-6. Actualizar `README.md` o esta documentación si cambia un comando o una regla.
+Antes de publicar: establecer SECRET_KEY aleatorio, APP_ENV=production,
+SESSION_COOKIE_SECURE=1, HTTPS en el proxy y credenciales propias de PostgreSQL.
+La configuración Compose incluida es para desarrollo local.
+
+## Cambios
+
+Leer AGENTS.md y arquitectura; modificar la capa dueña del comportamiento,
+añadir pruebas de regresión y ejecutar las validaciones documentadas.
+No commitear `.env`, bases de datos, node_modules ni artefactos generados.
+
+`init-db` actualiza de forma aditiva bases antiguas sin `password_hash`.
+`seed` sin reset habilita contraseñas solo para las cuentas ficticias originales
+que coinciden por nombre/correo y aún no tienen hash; conserva las demás cuentas.
+
+Para habilitar acceso web a una cuenta creada desde consola, usar
+`flask --app app.main:create_app library users password --id ID`.
+La contraseña se solicita de forma oculta y con confirmación.
+
+La ruta `/auth/registro` permite al administrador registrar usuarios con el
+mismo formulario del panel. Sin sesión o con otro rol muestra instrucciones
+para solicitar una cuenta. No existe autorregistro público.

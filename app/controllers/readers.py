@@ -1,8 +1,8 @@
 import click
 from sqlalchemy.exc import IntegrityError
 
-from main import db
-from app.model.persona import Estudiante
+from app.main import db
+from app.model.catalogo import people
 from app.model.personas import create_member, delete_member, get_member, update_member
 from app.view.consola import print_rows
 
@@ -27,7 +27,7 @@ def register_reader_commands(library: click.Group) -> None:
     def list_readers() -> None:
         print_rows(["ID", "Nombre", "Email", "Activo"],
                    ((reader.id, reader.name, reader.email, reader.active)
-                    for reader in Estudiante.query.order_by(Estudiante.id).all()))
+                    for reader in people(readers=True)))
 
     @readers.command("get")
     @click.option("--id", "reader_id", type=int, required=True)

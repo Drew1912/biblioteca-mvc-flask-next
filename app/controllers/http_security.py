@@ -3,13 +3,12 @@ from typing import Callable
 
 from flask import jsonify, session
 
-from main import db
+from app.model.usuarios import active_user
 from app.model.persona import Persona
 
 
 def current_user() -> Persona | None:
-    user_id = session.get("user_id")
-    return db.session.get(Persona, user_id) if user_id else None
+    return active_user(session.get("user_id"))
 
 
 def login_required(view: Callable):

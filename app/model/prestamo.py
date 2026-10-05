@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from main import db
+from app.main import db
 
 
 class Prestamo(db.Model):

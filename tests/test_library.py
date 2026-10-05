@@ -1,6 +1,6 @@
 import pytest
 
-from main import db
+from app.main import db
 from app.model.material import Libro
 from app.model.persona import Estudiante
 from app.model.materiales import create_book, delete_book, update_book
@@ -98,4 +98,4 @@ def test_seed_creates_minimum_dataset(app):
         counts = seed_database(reset=True)
 
         assert counts == {"materiales": 20, "personas": 40, "prestamos": 20}
-        assert summary()["copias_disponibles"] == 20
+        assert summary()["copias_disponibles"] == 40

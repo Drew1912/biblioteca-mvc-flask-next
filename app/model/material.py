@@ -1,4 +1,4 @@
-from main import db
+from app.main import db
 
 
 class Material(db.Model):

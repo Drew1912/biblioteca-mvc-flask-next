@@ -1,15 +1,13 @@
+from app.model.catalogo import management_rows
 from collections.abc import Iterable
 
 from textual.screen import Screen
 from textual.widgets import Button, DataTable, Label
 from textual.containers import Horizontal
 
-from main import db
-from app.model.material import Material
+from app.main import db
 from app.model.materiales import delete_material
-from app.model.persona import Estudiante, Persona
 from app.model.personas import delete_member
-from app.model.prestamo import Prestamo
 from app.model.prestamos import delete_loan, return_book
 from app.model.usuarios import delete_user
 from app.controllers.tui.forms import FormScreen
@@ -43,6 +41,10 @@ class ManagementScreen(Screen[None]):
         yield Label("Selecciona una fila y usa botones o teclado.", id="message", classes="message")
 
     def on_mount(self) -> None:
+        self.query_one("#return", Button).display = self.kind == "loans"
+        self.refresh_table()
+
+    def on_screen_resume(self):
         self.refresh_table()
 
     def refresh_table(self) -> None:
@@ -52,17 +54,7 @@ class ManagementScreen(Screen[None]):
         self.add_rows(table, rows[0], rows[1])
 
     def rows_for_kind(self):
-        if self.kind == "users":
-            return (["ID", "Nombre", "Email", "Rol", "Activo"],
-                    ((x.id, x.name, x.email, x.tipo_persona, "Si" if x.active else "No") for x in Persona.query.order_by(Persona.id).all()))
-        if self.kind == "readers":
-            return (["ID", "Nombre", "Email", "Activo"],
-                    ((x.id, x.name, x.email, "Si" if x.active else "No") for x in Estudiante.query.order_by(Estudiante.id).all()))
-        if self.kind == "materials":
-            return (["ID", "Tipo", "Titulo", "ISBN", "Disponibles"],
-                    ((x.id, x.tipo_material, x.title, x.isbn, f"{x.available_copies}/{x.total_copies}") for x in Material.query.order_by(Material.id).all()))
-        return (["ID", "Material", "Persona", "Vence", "Devuelto"],
-                ((x.id, x.material.title, x.persona.name, x.due_at.strftime("%Y-%m-%d"), "Si" if x.returned_at else "No") for x in Prestamo.query.order_by(Prestamo.id).all()))
+        return management_rows(self.kind)
 
     @staticmethod
     def add_rows(table: DataTable, columns: list[str], rows: Iterable[Iterable[object]]) -> None:
@@ -101,7 +93,7 @@ class ManagementScreen(Screen[None]):
             self.notify("Selecciona un registro primero", severity="warning")
             return
         try:
-            if action == "return":
+            if action == "return" and self.kind == "loans":
                 return_book(self.selected_id)
             elif self.kind == "users":
                 delete_user(self.selected_id)
@@ -111,7 +103,6 @@ class ManagementScreen(Screen[None]):
                 delete_material(self.selected_id)
             else:
                 delete_loan(self.selected_id)
-            db.session.commit()
             self.selected_id = None
             self.refresh_table()
             self.notify("Operacion completada", severity="information")

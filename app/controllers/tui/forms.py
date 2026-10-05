@@ -1,11 +1,10 @@
+from app.model.catalogo import materials as available_materials, people as active_people
 from textual.containers import Center, Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Button, Input, Label, Select
 
-from main import db
-from app.model.material import Material
+from app.main import db
 from app.model.materiales import create_material, update_material
-from app.model.persona import Persona
 from app.model.personas import create_member, update_member
 from app.model.prestamos import checkout_book
 from app.model.usuarios import create_user, update_user
@@ -41,9 +40,9 @@ class FormScreen(Screen[None]):
             return [Select([(kind.title(), kind) for kind in ("libro", "revista", "tesis")], prompt="Tipo", id="type"),
                     Input(placeholder="Titulo", id="title"), Input(placeholder="ISBN", id="isbn"), Input(placeholder="Copias", id="copies", type="integer")]
         materials = [(f"{x.title} · {x.tipo_material} · {x.available_copies} disponibles", x.id)
-                     for x in Material.query.filter(Material.available_copies > 0).order_by(Material.title).all()]
+                     for x in available_materials(available=True)]
         people = [(f"{x.name} · {x.email} · {x.tipo_persona}", x.id)
-                  for x in Persona.query.filter_by(active=True).order_by(Persona.name).all()]
+                  for x in active_people(active=True)]
         return [Select(materials, prompt="Selecciona material", id="material"),
                 Select(people, prompt="Selecciona persona", id="person"),
                 Input(value="14", id="days", type="integer", placeholder="Dias del prestamo")]

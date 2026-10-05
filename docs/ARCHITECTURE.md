@@ -1,53 +1,75 @@
-# Arquitectura
+# Arquitectura MVC
 
-## Flujo principal
+`app/main.py` crea Flask, configura SQLAlchemy, CORS y registra los controladores.
+`app/__init__.py` solo reexporta la factoría por compatibilidad.
+No hay `extensions.py`, `settings/` ni carpeta `api/`.
 
 ```mermaid
 flowchart LR
-    TUI[Textual TUI] --> C[Controllers]
-    CLI[Flask CLI] --> C
-    C --> M[Model y servicios]
-    M --> DB[(PostgreSQL)]
-    M --> V[Reportes y vistas]
-    V --> TUI
+  Main[app/main.py] --> HTTP[controllers/http_*.py]
+  Main --> CLI[controllers/cli.py]
+  CLI --> TUI[controllers/tui]
+  HTTP --> Model[model: servicios y entidades]
+  CLI --> Model
+  TUI --> Model
+  Model --> DB[(PostgreSQL)]
+  HTTP --> View[view: serialización]
+  Web[web: Next.js] --> HTTP
 ```
 
-## Capas
+## Backend
 
-### Model
+- Modelo: herencia de tabla única para Material (Libro, Revista, Tesis) y Persona
+  (Administrador, Bibliotecario, Doctor, Estudiante). Prestamo conserva el historial.
+- `catalogo.py` prepara consultas; `reportes.py` prepara reportes.
+- `materiales.py`, `usuarios.py`, `personas.py` y `prestamos.py` implementan servicios.
+- `transaction.py` centraliza commit/rollback. Los préstamos bloquean filas en
+  PostgreSQL para proteger disponibilidad y devoluciones concurrentes.
+- Controladores HTTP: `http_auth`, `http_materials`, `http_users`, `http_loans`,
+  `http_reports`; `http_security` valida sesión y rol; `http_guards` protege CSRF.
+- Vista: `consola.py` presenta tablas; `serializers.py` expone datos sin hashes.
+- CLI y TUI invocan los mismos servicios; no requieren login.
 
-`app/model/` contiene las entidades, relaciones, operaciones de dominio, reportes y datos de prueba. Esta capa conoce SQLAlchemy y la base de datos, pero no conoce Textual ni Click.
+## Frontend
 
-### Controllers
+`web/` es un proyecto independiente al lado de `app/`, dentro del repositorio.
+`web/app` contiene las entradas que exige Next.js. Las responsabilidades propias
+se distribuyen entre `model` (HTTP y contratos), `controllers` (carga) y `view`
+(formularios, tablas y gestiones). No hay servidor de negocio duplicado en Next.js.
 
-`app/controllers/` contiene adaptadores de entrada:
+## Permisos HTTP
 
-- `cli.py`: registra comandos y delega.
-- `users.py`: CRUD de usuarios por rol.
-- `readers.py`: CRUD de lectores.
-- `materials.py`: CRUD de materiales.
-- `loans.py`: préstamos y devoluciones.
-- `reports.py`: reporte de consola.
-- `tui/`: pantallas Textual separadas por responsabilidad.
+| Operación | Administrador | Bibliotecario | Doctor / Estudiante |
+|---|---|---|---|
+| Consultar catálogo | Sí | Sí | Sí |
+| Crear, editar, eliminar materiales | Sí | Sí | No |
+| Consultar personas | Sí | Sí | No |
+| Crear, editar, eliminar personas | Sí | No | No |
+| Consultar préstamos | Todos | Todos | Propios |
+| Prestar y devolver | Sí | Sí | No |
+| Reportes | Sí | Sí | No |
 
-Los controladores no deben implementar consultas o reglas de disponibilidad directamente.
+El rol se asigna al crear una persona. La edición cambia nombre/correo, no la
+clase de herencia. La edición de materiales cambia título/ISBN; las copias se
+asignan al crearlos. No se destruye historial desde HTTP.
 
-### View
+## Contrato HTTP `/api/v1`
 
-`app/view/` contiene formatos de tablas y salida reutilizable. El TUI usa sus propios widgets Textual, pero reutiliza consultas preparadas por el modelo.
+- `GET /health`, `GET /auth/me` (usuario y token CSRF).
+- `POST /auth/login`, `POST /auth/logout` con `X-CSRF-Token`.
+- `GET/POST /materials`, `PATCH/DELETE /materials/:id`.
+- `GET/POST /users`, `PATCH/DELETE /users/:id`.
+- `GET/POST /loans`, `POST /loans/:id/return`.
+- `GET /reports/{summary,inventory,users,loans,overdue}`.
 
-### Settings
+Sesiones firmadas, cookies HttpOnly/SameSite=Lax, hash scrypt, expiración de ocho
+horas, token CSRF rotado al login, CORS explícito y límite de diez intentos de
+login/minuto/IP. Gunicorn usa un proceso y cuatro threads; el limitador está en
+memoria y se reinicia con el proceso. Para múltiples workers se necesita un
+almacén compartido de límites. HTTPS y cookie Secure son obligatorios al publicar.
 
-`main.py` es el orquestador: crea Flask, SQLAlchemy, CORS, CLI, TUI y API. `app/settings/config.py` lee `DATABASE_URL` y opciones de Flask desde el entorno. No colocar secretos en el código. `app/extensions.py` no forma parte de la arquitectura.
+## Límites
 
-## Persistencia
-
-La herencia se implementa con single-table inheritance:
-
-- `material`: `Material` con `tipo_material`; subtipos `Libro`, `Revista`, `Tesis`.
-- `persona`: `Persona` con `tipo_persona`; subtipos `Administrador`, `Bibliotecario`, `Doctor`, `Estudiante`.
-- `prestamo`: enlaza un material con una persona y conserva fechas de préstamo, vencimiento y devolución.
-
-## TUI
-
-`LibraryTui` abre el menú principal. Cada gestión usa `ManagementScreen`; los formularios están en `FormScreen` y los reportes en `ReportScreen`. Las entidades existentes se eligen con combos Textual, no con IDs escritos a mano.
+130 líneas físicas por fuente propio, verificadas automáticamente. Los archivos
+generados y lockfiles se excluyen. No introducir carpetas de capas adicionales.
+Las pruebas unitarias usan SQLite; concurrencia real debe comprobarse en PostgreSQL.

@@ -1,6 +1,6 @@
 import click
 
-from app.model.prestamo import Prestamo
+from app.model.catalogo import loans as list_loans_data
 from app.model.prestamos import checkout_book, delete_loan, get_loan, return_book
 from app.view.consola import print_rows
 
@@ -25,7 +25,7 @@ def register_loan_commands(library: click.Group) -> None:
     def list_loans() -> None:
         print_rows(["ID", "Material", "Persona", "Vence", "Devuelto"],
                    ((loan.id, loan.material.title, loan.persona.name, loan.due_at.isoformat(), loan.returned_at or "No")
-                    for loan in Prestamo.query.order_by(Prestamo.id).all()))
+                    for loan in list_loans_data()))
 
     @loans.command("get")
     @click.option("--id", "loan_id", type=int, required=True)

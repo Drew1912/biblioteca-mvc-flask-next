@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, User } from "../../lib/api";
+import { api, User } from "../../model/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,9 +27,10 @@ export default function LoginPage() {
   return <main className="login"><form className="login-card" onSubmit={submit}>
     <span className="eyebrow">Biblioteca virtual</span>
     <h1>Bienvenido</h1><p>Accede al centro de gestión de tu biblioteca.</p>
-    <label className="field">Correo<input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-    <label className="field">Contraseña<input type="password" required value={password} onChange={(event) => setPassword(event.target.value)} /></label>
-    {error && <div className="error">{error}</div>}
+    <label className="field">Correo<input type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+    <label className="field">Contraseña<input type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+    {error && <div role="alert" className="error">{error}</div>}
     <button className="primary" disabled={loading}>{loading ? "Entrando..." : "Iniciar sesión"}</button>
+    <p><Link href="/auth/registro">Registro de usuarios</Link></p>
   </form></main>;
 }

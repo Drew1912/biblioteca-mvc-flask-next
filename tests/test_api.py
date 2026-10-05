@@ -1,5 +1,7 @@
 def login(client, email="usuario03@test.local", password="Biblioteca123!"):
-    return client.post("/api/v1/auth/login", json={"email": email, "password": password})
+    token = client.get("/api/v1/auth/me").json["csrfToken"]
+    return client.post("/api/v1/auth/login", json={"email": email, "password": password},
+                       headers={"X-CSRF-Token": token})
 
 
 def test_health_is_public(client):

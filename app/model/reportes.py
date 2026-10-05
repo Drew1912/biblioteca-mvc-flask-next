@@ -47,7 +47,7 @@ def overdue_rows() -> list[tuple[object, ...]]:
     now = datetime.now(UTC)
     return [
         (loan.material.title, loan.persona.name, loan.due_at.strftime("%Y-%m-%d"),
-         (now - loan.due_at).days)
+         (now - loan.due_at.replace(tzinfo=UTC)).days)
         for loan in Prestamo.query.filter(
             Prestamo.returned_at.is_(None), Prestamo.due_at < now
         ).order_by(Prestamo.due_at).all()

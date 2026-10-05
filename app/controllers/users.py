@@ -1,10 +1,9 @@
 import click
-from flask import Flask
 from sqlalchemy.exc import IntegrityError
 
-from main import db
-from app.model.persona import Persona
-from app.model.usuarios import create_user, delete_user, get_user, update_user
+from app.main import db
+from app.model.catalogo import people
+from app.model.usuarios import create_user, delete_user, get_user, update_user, set_user_password
 from app.view.consola import print_rows
 
 
@@ -29,7 +28,7 @@ def register_user_commands(library: click.Group) -> None:
     def list_users() -> None:
         print_rows(["ID", "Nombre", "Email", "Rol", "Activo"],
                    ((user.id, user.name, user.email, user.tipo_persona, user.active)
-                    for user in Persona.query.order_by(Persona.id).all()))
+                    for user in people()))
 
     @users.command("get")
     @click.option("--id", "user_id", type=int, required=True)
@@ -61,3 +60,14 @@ def register_user_commands(library: click.Group) -> None:
         except ValueError as error:
             raise click.ClickException(str(error))
         click.echo("Usuario eliminado.")
+
+    @users.command("password")
+    @click.option("--id", "user_id", type=int, required=True)
+    @click.password_option(confirmation_prompt=True)
+    def password_command(user_id: int, password: str) -> None:
+        """Asigna acceso web sin exigir login a la consola."""
+        try:
+            set_user_password(user_id, password)
+        except ValueError as error:
+            raise click.ClickException(str(error))
+        click.echo("Contraseña actualizada.")
