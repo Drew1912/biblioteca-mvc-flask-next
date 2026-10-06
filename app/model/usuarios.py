@@ -4,7 +4,7 @@ from app.model.validation import text, email_address, password_value
 from app.model.persona import (
     Administrador,
     Bibliotecario,
-    Doctor,
+    Docente,
     Estudiante,
     Persona,
 )
@@ -12,17 +12,17 @@ from app.model.persona import (
 ROLE_TYPES = {
     "administrador": Administrador,
     "bibliotecario": Bibliotecario,
-    "doctor": Doctor,
+    "docente": Docente,
     "estudiante": Estudiante,
 }
 
 
 @transactional
-def create_user(name: str, email: str, role: str, password: str | None = None) -> Persona:
+def create_user(name: str, email: str, documento_identidad: str, role: str, password: str | None = None) -> Persona:
     user_type = ROLE_TYPES.get(text(role, "Rol").lower())
     if user_type is None:
         raise ValueError("Rol inválido")
-    user = user_type(name=text(name, "Nombre"), email=email_address(email))
+    user = user_type(name=text(name, "Nombre"), email=email_address(email), documento_identidad = (documento_identidad, "Documento de identidad"))
     if password:
         user.set_password(password_value(password))
     db.session.add(user)
@@ -42,12 +42,15 @@ def get_user(user_id: int) -> Persona:
 
 
 @transactional
-def update_user(user_id: int, name: str | None, email: str | None) -> Persona:
+def update_user(user_id: int, name: str | None = None, email: str | None = None, documento_identidad: str | None = None) -> Persona:
     user = get_user(user_id)
+    
     if name is not None:
         user.name = text(name, "Nombre")
     if email is not None:
         user.email = email_address(email)
+    if documento_identidad is not None:
+        user.documento_identidad = text(documento_identidad, "Documento de identidad")
     return user
 
 
