@@ -6,11 +6,19 @@ class Persona(db.Model):
     __tablename__ = "persona"
 
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Llave foránea conectando con Biblioteca según el diagrama UML
+    biblioteca_id = db.Column(db.Integer, db.ForeignKey('bibliotecas.id'), nullable=True)
     tipo_persona = db.Column(db.String(30), nullable=False)
     name = db.Column(db.String(120), nullable=False)
+    
+    # Nuevo: Identificador oficial necesario para préstamos físicos
+    cod_estudiante = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(254), unique=True, nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
     password_hash = db.Column(db.String(255), nullable=True)
+    
+    
     loans = db.relationship("Prestamo", back_populates="persona")
     __mapper_args__ = {"polymorphic_on": tipo_persona, "polymorphic_identity": "persona"}
 
@@ -29,8 +37,8 @@ class Bibliotecario(Persona):
     __mapper_args__ = {"polymorphic_identity": "bibliotecario"}
 
 
-class Doctor(Persona):
-    __mapper_args__ = {"polymorphic_identity": "doctor"}
+class Docente(Persona):
+    __mapper_args__ = {"polymorphic_identity": "docente"}
 
 
 class Estudiante(Persona):
