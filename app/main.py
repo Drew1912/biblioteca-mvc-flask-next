@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from app.model import db # importar la base de datos desde modelo
 
 import os
 from datetime import timedelta
@@ -23,7 +24,7 @@ class Config:
 
 
 
-db = SQLAlchemy()
+#db = SQLAlchemy()
 
 
 def create_app(test_config: dict | None = None) -> Flask:
@@ -42,5 +43,6 @@ def create_app(test_config: dict | None = None) -> Flask:
     register_api(app)
 
     with app.app_context():
-        from app.model import material, persona, prestamo  # noqa: F401
+        from app.model import biblioteca,material, persona, prestamo  # noqa: F401
+        db.create_all() #crea las tablas en la bd
     return app

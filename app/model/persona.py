@@ -1,4 +1,4 @@
-from app.main import db
+from app.model import db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -13,7 +13,7 @@ class Persona(db.Model):
     name = db.Column(db.String(120), nullable=False)
     
     # Nuevo: Identificador oficial necesario para préstamos físicos
-    cod_estudiante = db.Column(db.String(20), unique=True, nullable=False)
+    carnet_identidad = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(254), unique=True, nullable=False)
     active = db.Column(db.Boolean, nullable=False, default=True)
     password_hash = db.Column(db.String(255), nullable=True)

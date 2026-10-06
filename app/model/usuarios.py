@@ -1,5 +1,5 @@
 from app.model.transaction import transactional
-from app.main import db
+from app.model import db
 from app.model.validation import text, email_address, password_value
 from app.model.persona import (
     Administrador,
