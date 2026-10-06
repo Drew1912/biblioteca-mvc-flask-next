@@ -8,8 +8,8 @@ def get_member(member_id):
     return member
 
 
-def create_member(name, email):
-    return create_user(name, email, "estudiante")
+def create_member(name, email, documento_identidad):
+    return create_user(name, email, documento_identidad, "estudiante")
 
 
 def update_member(member_id, name, email):

@@ -21,3 +21,15 @@ instance/
 htmlcov/
 web/test-results/
 web/playwright-report/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Variables de entorno
+.env
+
+# Python
+__pycache__/
+*.pyc
