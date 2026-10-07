@@ -1,10 +1,10 @@
 from app.model import db
 
 
-class Biblioteca:
+class Biblioteca(db.Model):
     """Agregado de dominio que representa el catálogo de la biblioteca."""
     
-    #__tablename__ = 'bibliotecas'
+    __tablename__ = 'biblioteca'
     
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -13,6 +13,6 @@ class Biblioteca:
     personas = db.relationship('Persona', backref='biblioteca', lazy=True)
     
     # Esta relación requiere que el archivo material.py ya esté configurado con ORM
-    # materiales = db.relationship('Material', backref='biblioteca', lazy=True)
+    materiales = db.relationship('Material', backref='biblioteca', lazy=True)
     # def __init__(self, nombre: str):
     #     self.nombre = nombre
