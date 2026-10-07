@@ -5,8 +5,24 @@ PYTHON ?= $(if $(wildcard venv/bin/python),venv/bin/python,python3)
 endif
 FLASK := $(PYTHON) -m flask --app app.main:create_app
 COMPOSE ?= docker compose
+export PATH := $(HOME)/.local/share/pnpm/bin:$(PATH)
 
-.PHONY: install test lint init-db seed console run build up down logs clean web-build web-test
+.PHONY: install test lint init-db seed console run build up down logs clean web-build web-test start stop
+
+start:
+	@echo "✔ Flask → http://localhost:5000"
+	@echo "✔ Next  → http://localhost:3000"
+	@echo "  Ctrl+C para apagar ambos"
+	@echo ""
+	@trap 'kill 0' INT TERM; \
+		$(FLASK) run --port 5000 & \
+		pnpm --dir web dev & \
+		wait
+
+stop:
+	@-kill $$(lsof -ti:5000) 2>/dev/null && echo "✔ Flask detenido" || echo "⚠ Flask no corría en :5000"
+	@-kill $$(lsof -ti:3000) 2>/dev/null && echo "✔ Next.js detenido" || echo "⚠ Next.js no corría en :3000"
+	@echo "Todo apagado."
 
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
