@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 
 from app.controllers.http_security import current_user, login_required, roles_required
 from app.view.serializers import loan_json
-from app.model.prestamos import checkout_book, return_book
+from app.controllers.prestamos import checkout_book, return_book
 
 loans_api = Blueprint("loans_api", __name__)
 

@@ -141,7 +141,7 @@ flowchart TD
 ```
 
 Administrador y bibliotecario gestionan materiales y prestamos. Solo el
-administrador gestiona personas. Doctor y estudiante consultan el catalogo y
+administrador gestiona personas. Docente y estudiante consultan el catalogo y
 sus propios prestamos.
 
 ## 8. Estructura del frontend

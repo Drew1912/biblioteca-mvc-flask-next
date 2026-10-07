@@ -4,8 +4,8 @@ from app import create_app
 from app.controllers.console import LibraryTui
 from app.controllers.console import FormScreen, ReportScreen
 from app.main import db
-from app.model.materiales import create_material
-from app.model.personas import create_member
+from app.controllers.materiales import create_material
+from app.controllers.personas import create_member
 from textual.widgets import Select
 
 

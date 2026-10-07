@@ -19,7 +19,7 @@ def test_session_rotation_logout(session_client):
     assert client.post("/api/v1/auth/logout", headers=headers).status_code == 403
 
 
-@pytest.mark.parametrize("role", ["administrador", "bibliotecario", "doctor", "estudiante"])
+@pytest.mark.parametrize("role", ["administrador", "bibliotecario", "docente", "estudiante"])
 def test_permissions(session_client, role):
     client, headers, _ = session_client(role)
     manage = role in {"administrador", "bibliotecario"}
@@ -31,7 +31,7 @@ def test_permissions(session_client, role):
                            json={"type": "libro", "title": "Prueba", "isbn": "TEST", "copies": 2})
     assert response.status_code == (201 if manage else 403)
     response = client.post("/api/v1/users", headers=headers, json={
-        "name": "Nueva", "email": "nueva@test.local", "role": "doctor", "password": "Biblioteca123!"})
+        "name": "Nueva", "email": "nueva@test.local", "role": "docente", "password": "Biblioteca123!"})
     assert response.status_code == (201 if role == "administrador" else 403)
 
 
@@ -57,3 +57,11 @@ def test_rate_limit(client, account):
 def test_logout_with_empty_json_content_type(session_client):
     client, headers, _ = session_client()
     assert client.post("/api/v1/auth/logout", headers={**headers, "Content-Type": "application/json"}).status_code == 200
+
+
+def test_write_requires_origin_even_with_csrf(client):
+    token = client.get("/api/v1/auth/me").json["csrfToken"]
+    response = client.post("/api/v1/auth/logout", headers={"X-CSRF-Token": token},
+                           environ_overrides={"HTTP_ORIGIN": ""})
+    assert response.status_code == 403
+    assert response.json["error"] == "Origen no permitido"

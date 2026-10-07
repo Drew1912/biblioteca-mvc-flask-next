@@ -4,8 +4,12 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const writes = options.method && !["GET", "HEAD"].includes(options.method);
   if (writes && !csrfToken) await api("/auth/me");
   const response = await fetch(`${API_URL}${path}`, {
-    ...options, credentials: "include",
+    ...options, credentials: "include", signal: options.signal ?? AbortSignal.timeout(15000),
     headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...(writes ? { "X-CSRF-Token": csrfToken } : {}), ...options.headers },
+  }).catch((reason: unknown) => {
+    const timeout = reason instanceof Error && ["TimeoutError", "AbortError"].includes(reason.name);
+    throw new Error(timeout ? "La conexión tardó demasiado. Reintenta la operación." :
+      "No se pudo conectar con la biblioteca. Revisa tu conexión e inténtalo de nuevo.");
   });
   const data = await response.json().catch(() => ({}));
   if (data.csrfToken) csrfToken = data.csrfToken;
@@ -16,14 +20,4 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   if (path === "/auth/logout") csrfToken = "";
   return data as T;
 }
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-  carnetIdentity: string;
-  role: string;
-  active: boolean;
-};
-export type Material = { id: number; type: string; title: string; isbn: string; totalCopies: number; availableCopies: number };
-export type Loan = { id: number; material: Material; user: User; dueAt: string; returnedAt: string | null };
-export type Summary = Record<string, number>;
+export type { User, Material, Loan, Summary } from "./contracts";

@@ -24,7 +24,7 @@ init-db:
 	$(FLASK) init-db
 
 seed:
-	$(FLASK) seed --reset
+	$(FLASK) seed
 
 console:
 	$(FLASK) console

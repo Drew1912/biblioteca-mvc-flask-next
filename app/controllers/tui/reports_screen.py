@@ -3,7 +3,7 @@ from textual.containers import Horizontal
 from textual.screen import Screen
 from textual.widgets import Button, DataTable, Label, Select
 
-from app.model.reportes import inventory_rows, loans_rows, overdue_rows, summary, users_by_role_rows
+from app.model.reportes import inventory_rows, loans_rows, overdue_rows, summary, users_by_role_rows, readers_rows
 
 
 class ReportScreen(Screen[None]):
@@ -14,7 +14,8 @@ class ReportScreen(Screen[None]):
         yield Select([
             ("Resumen general", "summary"),
             ("Inventario por tipo", "inventory"),
-            ("Usuarios por rol", "users"),
+            ("Usuarios internos", "users"),
+            ("Lectores por rol", "readers"),
             ("Historial de préstamos", "loans"),
             ("Préstamos vencidos", "overdue"),
         ], value="summary", id="report-choice")
@@ -43,6 +44,8 @@ class ReportScreen(Screen[None]):
             return (["Tipo", "Material", "ISBN", "Total", "Disponibles"], inventory_rows())
         if report_type == "users":
             return (["Rol", "Nombre", "Email", "Estado"], users_by_role_rows())
+        if report_type == "readers":
+            return (["Rol", "Nombre", "Email", "Estado"], readers_rows())
         if report_type == "loans":
             return (["Material", "Persona", "Vence", "Estado"], loans_rows())
         if report_type == "overdue":

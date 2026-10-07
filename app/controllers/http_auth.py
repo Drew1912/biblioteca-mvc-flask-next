@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from app.controllers.http_guards import csrf_token
 from app.controllers.http_security import current_user
 from app.view.serializers import user_json
-from app.model.usuarios import authenticate
+from app.controllers.usuarios import authenticate
 
 auth_api = Blueprint("auth_api", __name__)
 

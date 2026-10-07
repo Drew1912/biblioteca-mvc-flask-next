@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.parametrize("group,create_args,update_args", [
     ("materials", ["--type", "revista", "--title", "Inicial", "--isbn", "CLI"], ["--title", "Editado"]),
-    ("users", ["--name", "Inicial", "--email", "u@test.local", "--role", "doctor"], ["--name", "Editado"]),
+    ("users", ["--name", "Inicial", "--email", "u@test.local", "--role", "docente"], ["--name", "Editado"]),
     ("readers", ["--name", "Inicial", "--email", "r@test.local"], ["--name", "Editado"]),
 ])
 def test_cli_crud(runner, group, create_args, update_args):
@@ -21,7 +21,7 @@ def test_cli_crud(runner, group, create_args, update_args):
 
 
 def test_password_command(app, runner, account):
-    from app.model.usuarios import authenticate
+    from app.controllers.usuarios import authenticate
     user_id = account()
     result = runner.invoke(args=["library", "users", "password", "--id", str(user_id)],
                            input="NuevaClave123!\nNuevaClave123!\n")
@@ -33,7 +33,7 @@ def test_password_command(app, runner, account):
 
 
 def test_cli_loan_lifecycle(app, runner, account):
-    from app.model.materiales import create_book
+    from app.controllers.materiales import create_book
     person_id = account("estudiante")
     with app.app_context():
         book_id = create_book("CLI préstamo", "CLI-L", 1).id
@@ -42,3 +42,13 @@ def test_cli_loan_lifecycle(app, runner, account):
     for args in commands:
         result = runner.invoke(args=["library", "loans", *args])
         assert result.exit_code == 0, result.output
+
+
+def test_cli_teacher_reader_and_report(runner):
+    created = runner.invoke(args=["library", "readers", "create", "--name", "Profesora",
+                                  "--email", "prof@test.local", "--role", "docente"])
+    assert created.exit_code == 0
+    report = runner.invoke(args=["library", "reports", "--type", "readers"])
+    assert report.exit_code == 0
+    assert "docente" in report.output
+    assert "Profesora" in report.output

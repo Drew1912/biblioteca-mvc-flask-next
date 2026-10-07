@@ -1,7 +1,7 @@
 import click
 
 from app.model.catalogo import loans as list_loans_data
-from app.model.prestamos import checkout_book, delete_loan, get_loan, return_book
+from app.controllers.prestamos import checkout_book, delete_loan, get_loan, return_book
 from app.view.consola import print_rows
 
 

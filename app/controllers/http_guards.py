@@ -1,7 +1,7 @@
 from secrets import compare_digest, token_urlsafe
 from flask import jsonify, request, session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from app.main import db
+from app.model.transaction import rollback_session
 
 
 def csrf_token():
@@ -16,7 +16,7 @@ def register_guards(app):
         if not request.path.startswith("/api/") or request.method in {"GET", "HEAD", "OPTIONS"}:
             return None
         origin = request.headers.get("Origin")
-        if origin and origin != app.config["WEB_ORIGIN"]:
+        if origin != app.config["WEB_ORIGIN"]:
             return jsonify(error="Origen no permitido"), 403
         if not session.get("csrf") or not compare_digest(
             request.headers.get("X-CSRF-Token", ""), session["csrf"]
@@ -37,16 +37,16 @@ def register_guards(app):
     @app.errorhandler(TypeError)
     @app.errorhandler(KeyError)
     def invalid_data(error):
-        db.session.rollback()
+        rollback_session()
         return jsonify(error="Datos inválidos"), 400
 
     @app.errorhandler(IntegrityError)
     def conflict(error):
-        db.session.rollback()
+        rollback_session()
         return jsonify(error="Registro duplicado o con historial asociado"), 409
 
     @app.errorhandler(SQLAlchemyError)
     def persistence_error(error):
-        db.session.rollback()
+        rollback_session()
         app.logger.exception("Error de persistencia")
         return jsonify(error="No se pudo guardar la operación"), 503

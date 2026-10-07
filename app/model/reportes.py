@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import func
 
+from app.model.catalogo import people
 from app.model.material import Material
 from app.model.persona import Persona
 from app.model.prestamo import Prestamo
@@ -31,7 +32,7 @@ def inventory_rows() -> list[tuple[object, ...]]:
 def users_by_role_rows() -> list[tuple[object, ...]]:
     return [
         (user.tipo_persona, user.name, user.email, "Activo" if user.active else "Inactivo")
-        for user in Persona.query.order_by(Persona.tipo_persona, Persona.name).all()
+        for user in people(staff=True)
     ]
 
 
@@ -51,4 +52,11 @@ def overdue_rows() -> list[tuple[object, ...]]:
         for loan in Prestamo.query.filter(
             Prestamo.returned_at.is_(None), Prestamo.due_at < now
         ).order_by(Prestamo.due_at).all()
+    ]
+
+
+def readers_rows() -> list[tuple[object, ...]]:
+    return [
+        (user.tipo_persona, user.name, user.email, "Activo" if user.active else "Inactivo")
+        for user in people(readers=True)
     ]

@@ -3,7 +3,7 @@ from typing import Callable
 
 from flask import jsonify, session
 
-from app.model.usuarios import active_user
+from app.controllers.usuarios import active_user
 from app.model.persona import Persona
 
 

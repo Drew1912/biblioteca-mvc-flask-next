@@ -1,5 +1,5 @@
 from functools import wraps
-from app.model import db
+from app.main import db
 
 
 def transactional(operation):
@@ -13,3 +13,7 @@ def transactional(operation):
             db.session.rollback()
             raise
     return wrapped
+
+
+def rollback_session():
+    db.session.rollback()

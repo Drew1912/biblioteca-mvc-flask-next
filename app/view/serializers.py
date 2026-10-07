@@ -1,3 +1,4 @@
+from datetime import UTC
 from app.model.material import Material
 from app.model.persona import Persona
 from app.model.prestamo import Prestamo
@@ -30,7 +31,7 @@ def loan_json(loan: Prestamo) -> dict:
         "id": loan.id,
         "material": material_json(loan.material),
         "user": user_json(loan.persona),
-        "loanedAt": loan.loaned_at.isoformat(),
-        "dueAt": loan.due_at.isoformat(),
-        "returnedAt": loan.returned_at.isoformat() if loan.returned_at else None,
+        "loanedAt": loan.loaned_at.replace(tzinfo=UTC).isoformat(),
+        "dueAt": loan.due_at.replace(tzinfo=UTC).isoformat(),
+        "returnedAt": loan.returned_at.replace(tzinfo=UTC).isoformat() if loan.returned_at else None,
     }

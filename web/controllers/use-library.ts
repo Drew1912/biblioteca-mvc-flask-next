@@ -10,10 +10,11 @@ export function useLibrary() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const load = useCallback(async () => {
-    setError("");
+    setError(""); setLoading(true);
     try {
       const me = await api<{ user: User | null }>("/auth/me");
       if (!me.user) { window.location.assign("/login"); return; }
+      setUser(me.user);
       const manage = ["administrador", "bibliotecario"].includes(me.user.role);
       const [catalog, history, people, stats] = await Promise.all([
         api<{ items: Material[] }>("/materials"), api<{ items: Loan[] }>("/loans"),

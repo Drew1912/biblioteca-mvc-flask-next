@@ -1,15 +1,15 @@
-from app.model.catalogo import management_rows
+from app.model import catalogo
+from app.view.management import management_rows
 from collections.abc import Iterable
 
 from textual.screen import Screen
 from textual.widgets import Button, DataTable, Label
 from textual.containers import Horizontal
 
-from app.main import db
-from app.model.materiales import delete_material
-from app.model.personas import delete_member
-from app.model.prestamos import delete_loan, return_book
-from app.model.usuarios import delete_user
+from app.controllers.materiales import delete_material
+from app.controllers.personas import delete_member
+from app.controllers.prestamos import delete_loan, return_book
+from app.controllers.usuarios import delete_user
 from app.controllers.tui.forms import FormScreen
 
 
@@ -54,7 +54,13 @@ class ManagementScreen(Screen[None]):
         self.add_rows(table, rows[0], rows[1])
 
     def rows_for_kind(self):
-        return management_rows(self.kind)
+        loaders = {
+            "users": lambda: catalogo.people(staff=True),
+            "readers": lambda: catalogo.people(readers=True),
+            "materials": catalogo.materials,
+            "loans": catalogo.loans,
+        }
+        return management_rows(self.kind, loaders[self.kind]())
 
     @staticmethod
     def add_rows(table: DataTable, columns: list[str], rows: Iterable[Iterable[object]]) -> None:
@@ -107,5 +113,4 @@ class ManagementScreen(Screen[None]):
             self.refresh_table()
             self.notify("Operacion completada", severity="information")
         except Exception as error:
-            db.session.rollback()
             self.notify(str(error), severity="error")

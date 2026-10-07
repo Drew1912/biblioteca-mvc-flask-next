@@ -138,6 +138,9 @@ Abre http://localhost:3000. Cuenta ficticia de administrador:
 
 ## Credenciales de desarrollo
 
+La lista completa de cuentas de la base actual y sus permisos está en
+[Usuarios y permisos](docs/USUARIOS_Y_PERMISOS.md).
+
 La semilla crea cuentas ficticias para probar cada rol. Todas usan la
 contraseña `Biblioteca123!`:
 
@@ -145,13 +148,13 @@ contraseña `Biblioteca123!`:
 | ------------- | ---------------------- | ---------------- |
 | Administrador | `usuario03@test.local` | `Biblioteca123!` |
 | Bibliotecario | `usuario01@test.local` | `Biblioteca123!` |
-| Doctor        | `usuario02@test.local` | `Biblioteca123!` |
+| Docente        | `lector02@test.local` | `Biblioteca123!` |
 | Estudiante    | `lector01@test.local`  | `Biblioteca123!` |
 
 También se crean las cuentas `usuario04@test.local` a
 `usuario20@test.local` y `lector02@test.local` a `lector20@test.local`.
-Las cuentas `usuarioXX` alternan entre los roles bibliotecario, doctor y
-administrador. Los datos, nombres, correos y contraseñas son exclusivamente
+Las cuentas `usuarioXX` son administradores o bibliotecarios. Los lectores
+`lectorXX` alternan entre estudiantes (impares) y docentes (pares). Los datos, nombres, correos y contraseñas son exclusivamente
 de prueba: no usar estas credenciales ni `seed --reset` en producción.
 
 ## Validar
@@ -173,5 +176,14 @@ docker compose config
 - [Plantilla de diagramas](docs/DIAGRAMAS_PLANTILLA.md)
 
 La web incluye búsqueda, alta/edición/eliminación de materiales y personas según
-rol, préstamos, devoluciones y reportes. Doctor y estudiante solo consultan el
+rol, préstamos, devoluciones y reportes. Docente y estudiante solo consultan el
 catálogo y sus préstamos. Se conserva el historial de préstamos.
+
+En bases anteriores migradas, la cuenta `usuario02@test.local` conserva su correo
+pero ahora es **docente**; `lector02@test.local` sigue siendo estudiante. En una
+semilla nueva se usan los roles de la tabla anterior. No es necesario borrar datos.
+
+El panel separa **Usuarios**, **Lectores**, **Catálogo**, **Préstamos** y **Reportes**.
+Usuarios contiene administradores y bibliotecarios; Lectores contiene docentes y
+estudiantes. Hay reportes independientes para ambas gestiones, inventario,
+préstamos y vencidos. Las escrituras web validan sesión, rol, origen y CSRF en Flask.

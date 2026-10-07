@@ -53,10 +53,10 @@ def test_loan_lifecycle(session_client, account):
 
 
 def test_reader_only_sees_own_loans(app, session_client, account):
-    from app.model.materiales import create_book
-    from app.model.prestamos import checkout_book
+    from app.controllers.materiales import create_book
+    from app.controllers.prestamos import checkout_book
     client, _, own_id = session_client("estudiante")
-    other_id = account("doctor")
+    other_id = account("docente")
     with app.app_context():
         book = create_book("Privacidad", "P", 2)
         checkout_book(book.id, own_id, 7)

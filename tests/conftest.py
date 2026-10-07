@@ -30,11 +30,13 @@ def runner(app):
 
 @pytest.fixture()
 def client(app):
-    return app.test_client()
+    client = app.test_client()
+    client.environ_base["HTTP_ORIGIN"] = app.config["WEB_ORIGIN"]
+    return client
 
 @pytest.fixture()
 def account(app):
-    from app.model.usuarios import create_user
+    from app.controllers.usuarios import create_user
 
     def create(role="administrador", email=None):
         with app.app_context():

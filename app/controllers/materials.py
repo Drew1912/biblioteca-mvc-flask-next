@@ -1,9 +1,8 @@
 import click
 from sqlalchemy.exc import IntegrityError
 
-from app.main import db
 from app.model.catalogo import materials as list_materials_data
-from app.model.materiales import create_material, delete_material, get_material, update_material
+from app.controllers.materiales import create_material, delete_material, get_material, update_material
 from app.view.consola import print_rows
 
 
@@ -21,7 +20,6 @@ def register_material_commands(library: click.Group) -> None:
         try:
             material = create_material(material_type, title, isbn, copies)
         except (IntegrityError, ValueError) as error:
-            db.session.rollback()
             raise click.ClickException(str(error))
         click.echo(f"Material creado: {material.id}")
 
@@ -49,7 +47,6 @@ def register_material_commands(library: click.Group) -> None:
         try:
             update_material(material_id, title, isbn)
         except (IntegrityError, ValueError) as error:
-            db.session.rollback()
             raise click.ClickException(str(error))
         click.echo("Material actualizado.")
 

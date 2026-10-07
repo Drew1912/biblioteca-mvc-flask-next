@@ -24,11 +24,11 @@ classDiagram
     }
     class Administrador
     class Bibliotecario
-    class Doctor
+    class Docente
     class Estudiante
     Persona <|-- Administrador
     Persona <|-- Bibliotecario
-    Persona <|-- Doctor
+    Persona <|-- Docente
     Persona <|-- Estudiante
 
     class Prestamo {

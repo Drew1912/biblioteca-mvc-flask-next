@@ -44,7 +44,7 @@ Toda escritura exige CSRF y validación del origen. CORS admite un origen explí
 Los permisos se validan en Flask, no solo ocultando botones.
 Administrador: materiales, personas, préstamos y reportes.
 Bibliotecario: materiales, préstamos, consulta de personas y reportes.
-Doctor y estudiante: catálogo y únicamente sus propios préstamos.
+Docente y estudiante: catálogo y únicamente sus propios préstamos.
 No borrar materiales/personas con historial ni permitir autoborrado web.
 Los errores deben ser visibles; no dejar pantallas cargando indefinidamente.
 

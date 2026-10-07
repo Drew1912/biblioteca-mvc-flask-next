@@ -1,9 +1,8 @@
 import click
 from sqlalchemy.exc import IntegrityError
 
-from app.main import db
 from app.model.catalogo import people
-from app.model.usuarios import create_user, delete_user, get_user, update_user, set_user_password
+from app.controllers.usuarios import create_user, delete_user, get_user, update_user, set_user_password
 from app.view.consola import print_rows
 
 
@@ -16,14 +15,13 @@ def register_user_commands(library: click.Group) -> None:
     @click.option("--name", required=True)
     @click.option("--email", required=True)
     @click.option("--role", type=click.Choice([
-        "administrador", "bibliotecario", "docente", "doctor", "estudiante",
+        "administrador", "bibliotecario", "docente", "estudiante",
     ]), required=True)
     @click.option("--documento-identidad")
     def create_user_command(name: str, email: str, role: str, documento_identidad: str | None) -> None:
         try:
             user = create_user(name, email, role, documento_identidad=documento_identidad)
         except (IntegrityError, ValueError) as error:
-            db.session.rollback()
             raise click.ClickException(str(error))
         click.echo(f"Usuario creado: {user.id}")
 
@@ -57,7 +55,6 @@ def register_user_commands(library: click.Group) -> None:
         try:
             update_user(user_id, name, email, documento_identidad)
         except (IntegrityError, ValueError) as error:
-            db.session.rollback()
             raise click.ClickException(str(error))
         click.echo("Usuario actualizado.")
 

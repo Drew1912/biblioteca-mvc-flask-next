@@ -2,14 +2,14 @@ from app.model.transaction import transactional
 from flask import current_app
 from datetime import UTC, datetime, timedelta
 
-from app.model import db
+from app.main import db
 from app.model.material import Libro, Material, Revista, Tesis
-from app.model.persona import Administrador, Bibliotecario, Doctor, Estudiante, Persona
+from app.model.persona import Administrador, Bibliotecario, Docente, Estudiante, Persona
 from app.model.prestamo import Prestamo
 
 
 MATERIAL_TYPES = (Libro, Revista, Tesis)
-USER_TYPES = (Administrador, Bibliotecario, Doctor)
+USER_TYPES = (Administrador, Bibliotecario, Administrador)
 
 
 @transactional
@@ -32,7 +32,7 @@ def seed_database(reset: bool = False) -> dict[str, int]:
         for index, material_type in ((index, MATERIAL_TYPES[index % 3]) for index in range(1, 21))
     ]
     students = [
-        Estudiante(name=f"Lector de prueba {index:02d}", carnet_identidad=f"LECTOR-{index:02d}",
+        (Estudiante if index % 2 else Docente)(name=f"Lector de prueba {index:02d}", carnet_identidad=f"LECTOR-{index:02d}",
                    email=f"lector{index:02d}@test.local")
         for index in range(1, 21)
     ]

@@ -1,9 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
 import pytest
 from app.main import db
-from app.model.materiales import create_book
-from app.model.usuarios import create_user
-from app.model.prestamos import checkout_book, return_book
+from app.controllers.materiales import create_book
+from app.controllers.usuarios import create_user
+from app.controllers.prestamos import checkout_book, return_book
 from app.model.material import Material
 
 

@@ -1,9 +1,8 @@
 import click
 from sqlalchemy.exc import IntegrityError
 
-from app.main import db
 from app.model.catalogo import people
-from app.model.personas import create_member, delete_member, get_member, update_member
+from app.controllers.personas import create_member, delete_member, get_member, update_member
 from app.view.consola import print_rows
 
 
@@ -15,11 +14,11 @@ def register_reader_commands(library: click.Group) -> None:
     @readers.command("create")
     @click.option("--name", required=True)
     @click.option("--email", required=True)
-    def create_reader(name: str, email: str) -> None:
+    @click.option("--role", type=click.Choice(["estudiante", "docente"]), default="estudiante")
+    def create_reader(name: str, email: str, role: str) -> None:
         try:
-            reader = create_member(name, email)
+            reader = create_member(name, email, role=role)
         except IntegrityError:
-            db.session.rollback()
             raise click.ClickException("El email ya está registrado")
         click.echo(f"Lector creado: {reader.id}")
 
@@ -47,7 +46,6 @@ def register_reader_commands(library: click.Group) -> None:
         try:
             update_member(reader_id, name, email)
         except (IntegrityError, ValueError) as error:
-            db.session.rollback()
             raise click.ClickException(str(error))
         click.echo("Lector actualizado.")
 

@@ -1,10 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
-from app.model import db
+from flask_sqlalchemy import SQLAlchemy
 
 import os
 from datetime import timedelta
 from secrets import token_hex
+
+
+db = SQLAlchemy()
 
 
 class Config:
@@ -37,6 +40,6 @@ def create_app(test_config: dict | None = None) -> Flask:
     register_api(app)
 
     with app.app_context():
-        from app.model import biblioteca,material, persona, prestamo  # noqa: F401
-        db.create_all() #crea las tablas en la bd
+        from app.model.schema import initialize_database
+        initialize_database()
     return app

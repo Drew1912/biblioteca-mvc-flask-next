@@ -22,12 +22,14 @@ test("administrador registra desde la URL y conserva su sesión", async ({ page 
   const email = `registro-${Date.now()}@test.local`;
   await page.getByLabel("Nombre", { exact: true }).fill("Registro de prueba");
   await page.getByLabel("Correo", { exact: true }).fill(email);
-  await page.getByRole("combobox", { name: "Rol", exact: true }).selectOption("estudiante");
+  const roles = page.getByRole("combobox", { name: "Rol", exact: true });
+  await expect(roles.locator("option")).toHaveText(["Seleccionar…", "estudiante", "docente", "bibliotecario", "administrador"]);
+  await roles.selectOption("estudiante");
   await page.getByLabel("Contraseña (mínimo 12 caracteres)").fill("Biblioteca123!");
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page.getByRole("status")).toHaveText("Usuario registrado correctamente.");
   await page.getByRole("link", { name: "Volver al panel" }).click();
-  await page.getByRole("button", { name: "Personas y roles", exact: true }).click();
+  await page.getByRole("button", { name: "Lectores", exact: true }).click();
   const row = page.getByRole("row").filter({ hasText: email });
   await expect(row).toBeVisible();
   page.on("dialog", dialog => dialog.accept());

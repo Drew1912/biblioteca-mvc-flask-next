@@ -3,12 +3,12 @@ import pytest
 from app.main import db
 from app.model.material import Libro
 from app.model.persona import Estudiante
-from app.model.materiales import create_book, delete_book, update_book
-from app.model.personas import create_member
-from app.model.prestamos import checkout_book, return_book
+from app.controllers.materiales import create_book, delete_book, update_book
+from app.controllers.personas import create_member
+from app.controllers.prestamos import checkout_book, return_book
 from app.model.reportes import summary
 from app.model.seed import seed_database
-from app.model.usuarios import create_user
+from app.controllers.usuarios import create_user
 
 
 def test_checkout_and_return_restore_availability(app):

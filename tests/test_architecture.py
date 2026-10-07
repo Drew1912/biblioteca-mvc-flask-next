@@ -24,3 +24,33 @@ def test_model_has_no_presentation_dependencies():
         assert "from app.controllers" not in text
         assert "from app.view" not in text
         assert "import textual" not in text
+
+
+def test_database_instance_lives_only_in_orchestrator():
+    sources = [p for p in Path("app").rglob("*.py") if "SQLAlchemy()" in p.read_text()]
+    assert sources == [Path("app/main.py")]
+
+
+def test_frontend_entries_and_views_do_not_call_transport():
+    for folder in ("app", "view"):
+        for source in Path("web", folder).rglob("*.tsx"):
+            assert "fetch(" not in source.read_text()
+            assert "await api(" not in source.read_text()
+
+
+def test_management_controllers_have_no_database_operations():
+    for source in Path("app/controllers").rglob("*.py"):
+        content = source.read_text()
+        assert "from app.main import db" not in content, source
+        assert "db.session" not in content, source
+        assert ".query.filter" not in content, source
+    for name in ("materiales", "usuarios", "personas", "prestamos"):
+        assert Path("app/controllers", f"{name}.py").is_file()
+        assert not Path("app/model", f"{name}.py").exists()
+
+
+def test_python_views_have_no_database_operations():
+    for source in Path("app/view").rglob("*.py"):
+        content = source.read_text()
+        assert "db.session" not in content, source
+        assert ".query" not in content, source

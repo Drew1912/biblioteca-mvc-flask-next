@@ -3,11 +3,10 @@ from textual.containers import Center, Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import Button, Input, Label, Select
 
-from app.main import db
-from app.model.materiales import create_material, update_material
-from app.model.personas import create_member, update_member
-from app.model.prestamos import checkout_book
-from app.model.usuarios import create_user, update_user
+from app.controllers.materiales import create_material, update_material
+from app.controllers.personas import create_member, update_member
+from app.controllers.prestamos import checkout_book
+from app.controllers.usuarios import create_user, update_user
 
 
 class FormScreen(Screen[None]):
@@ -30,10 +29,14 @@ class FormScreen(Screen[None]):
         if self.kind == "users":
             fields = [Input(placeholder="Nombre", id="name"), Input(placeholder="Email", id="email")]
             if self.record_id is None:
-                fields.append(Select([(role.title(), role) for role in ("administrador", "bibliotecario", "doctor", "estudiante")], prompt="Rol", id="role"))
+                fields.append(Select([(role.title(), role) for role in ("administrador", "bibliotecario")], prompt="Rol", id="role"))
             return fields
         if self.kind == "readers":
-            return [Input(placeholder="Nombre", id="name"), Input(placeholder="Email", id="email")]
+            fields = [Input(placeholder="Nombre", id="name"), Input(placeholder="Email", id="email")]
+            if self.record_id is None:
+                fields.append(Select([("Estudiante", "estudiante"), ("Docente", "docente")],
+                                     value="estudiante", id="role"))
+            return fields
         if self.kind == "materials":
             if self.record_id is not None:
                 return [Input(placeholder="Titulo", id="title"), Input(placeholder="ISBN", id="isbn")]
@@ -56,7 +59,6 @@ class FormScreen(Screen[None]):
             self.app.pop_screen()
             self.notify("Guardado correctamente", severity="information")
         except Exception as error:
-            db.session.rollback()
             self.notify(str(error), severity="error")
 
     def input_value(self, field_id: str) -> str:
@@ -82,7 +84,8 @@ class FormScreen(Screen[None]):
             if self.record_id:
                 operation(self.record_id, self.input_value("name") or None, self.input_value("email") or None)
             else:
-                operation(self.input_value("name"), self.input_value("email"))
+                operation(self.input_value("name"), self.input_value("email"),
+                          role=str(self.query_one("#role", Select).value))
         elif self.kind == "materials":
             if self.record_id:
                 update_material(self.record_id, self.input_value("title") or None, self.input_value("isbn") or None)

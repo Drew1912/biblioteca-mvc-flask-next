@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 
 from app.controllers.http_security import current_user, login_required
-from app.model.reportes import inventory_rows, loans_rows, overdue_rows, summary, users_by_role_rows
+from app.model.reportes import inventory_rows, loans_rows, overdue_rows, summary, users_by_role_rows, readers_rows
 
 reports_api = Blueprint("reports_api", __name__)
 
@@ -13,7 +13,7 @@ def report(report_type: str):
         return jsonify({"error": "Permisos insuficientes"}), 403
     if report_type == "summary":
         return jsonify(summary())
-    data = {"inventory": inventory_rows, "users": users_by_role_rows, "loans": loans_rows, "overdue": overdue_rows}.get(report_type)
+    data = {"inventory": inventory_rows, "users": users_by_role_rows, "readers": readers_rows, "loans": loans_rows, "overdue": overdue_rows}.get(report_type)
     if data is None:
         return jsonify({"error": "Reporte no encontrado"}), 404
     return jsonify({"items": data()})
