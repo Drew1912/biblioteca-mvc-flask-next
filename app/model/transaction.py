@@ -1,5 +1,5 @@
 from functools import wraps
-from app.main import db
+from app.model import db
 
 
 def transactional(operation):

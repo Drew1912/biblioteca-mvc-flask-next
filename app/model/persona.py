@@ -8,7 +8,7 @@ class Persona(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Llave foránea conectando con Biblioteca según el diagrama UML
-    biblioteca_id = db.Column(db.Integer, db.ForeignKey('bibliotecas.id'), nullable=True)
+    biblioteca_id = db.Column(db.Integer, db.ForeignKey('biblioteca.id'), nullable=True)
     tipo_persona = db.Column(db.String(30), nullable=False)
     name = db.Column(db.String(120), nullable=False)
     

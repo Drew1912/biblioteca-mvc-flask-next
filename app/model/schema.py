@@ -1,5 +1,5 @@
 from sqlalchemy import inspect, text
-from app.main import db
+from app.model import db
 
 
 def initialize_database():

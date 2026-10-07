@@ -2,14 +2,14 @@ from app.model.transaction import transactional
 from flask import current_app
 from datetime import UTC, datetime, timedelta
 
-from app.main import db
+from app.model import db
 from app.model.material import Libro, Material, Revista, Tesis
-from app.model.persona import Administrador, Bibliotecario, Doctor, Estudiante, Persona
+from app.model.persona import Administrador, Bibliotecario, Docente, Estudiante, Persona
 from app.model.prestamo import Prestamo
 
 
 MATERIAL_TYPES = (Libro, Revista, Tesis)
-USER_TYPES = (Administrador, Bibliotecario, Doctor)
+USER_TYPES = (Administrador, Bibliotecario, Docente)
 
 
 @transactional

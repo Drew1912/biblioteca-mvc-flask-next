@@ -2,6 +2,7 @@ from app.model.transaction import transactional
 from app.model import db
 from app.model.validation import text
 from app.model.material import Libro, Material, Revista, Tesis
+from typing import Optional
 
 MATERIAL_TYPES = {"libro": Libro, "revista": Revista, "tesis": Tesis}
 
@@ -57,14 +58,7 @@ def update_book(book_id: int, title: str | None = None, isbn: str | None = None)
 
 
 @transactional
-def update_material(
-    material_id: int,
-    title: str | None = None,
-    isbn: str | None = None,
-    copies: int | None = None,
-    issue_number: str | None = None,
-    university: str | None = None,
-) -> Material:
+def update_material(material_id: int, title: Optional[str] = None, isbn: Optional[str] = None) -> Material:
     material = get_material(material_id)
     if title is not None:
         material.title = text(title, "Título", 200)

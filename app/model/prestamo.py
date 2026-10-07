@@ -1,6 +1,7 @@
-from datetime import UTC, datetime
+#from datetime import UTC, datetime
+from datetime import datetime, timezone #cambiado para python 3.9
 
-from app.main import db
+from app.model import db
 
 
 class Prestamo(db.Model):
@@ -9,7 +10,7 @@ class Prestamo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     material_id = db.Column(db.Integer, db.ForeignKey("material.id"), nullable=False)
     persona_id = db.Column(db.Integer, db.ForeignKey("persona.id"), nullable=False)
-    loaned_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    loaned_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     due_at = db.Column(db.DateTime, nullable=False)
     returned_at = db.Column(db.DateTime)
     material = db.relationship("Material", back_populates="loans")
