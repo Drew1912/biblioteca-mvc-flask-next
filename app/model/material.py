@@ -1,4 +1,5 @@
 from app.model import db
+from sqlalchemy import CheckConstraint
 
 
 class Material(db.Model):

@@ -58,7 +58,7 @@ def update_book(book_id: int, title: str | None = None, isbn: str | None = None)
 
 
 @transactional
-def update_material(material_id: int, title: Optional[str] = None, isbn: Optional[str] = None) -> Material:
+def update_material(material_id: int, title: Optional[str] = None, isbn: Optional[str] = None, issue_number: Optional[str] = None, university: Optional[str] = None,copies: Optional[int] = None) -> Material:
     material = get_material(material_id)
     if title is not None:
         material.title = text(title, "Título", 200)
