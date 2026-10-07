@@ -21,6 +21,28 @@ class Material(db.Model):
     loans = db.relationship("Prestamo", back_populates="material")
     __mapper_args__ = {"polymorphic_on": tipo_material, "polymorphic_identity": "material"}
 
+    def __init__(
+        self,
+        title: str,
+        isbn: str,
+        total_copies: int = 1,
+        available_copies: int = 1,
+        issue_number: str | None = None,
+        university: str | None = None,
+        biblioteca_id: int | None = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(
+            title=title,
+            isbn=isbn,
+            total_copies=total_copies,
+            available_copies=available_copies,
+            issue_number=issue_number,
+            university=university,
+            biblioteca_id=biblioteca_id,
+            **kwargs,
+        )
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.id}: {self.title!r}>"
 
