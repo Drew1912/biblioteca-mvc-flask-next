@@ -2,40 +2,28 @@ from app.model.transaction import transactional
 from app.model import db
 from app.model.validation import text
 from app.model.material import Libro, Material, Revista, Tesis
-from typing import Optional
 
 MATERIAL_TYPES = {"libro": Libro, "revista": Revista, "tesis": Tesis}
 
 
 @transactional
-def create_material(
-    material_type: str,
-    title: str,
-    isbn: str,
-    copies: int = 1,
-    issue_number: str | None = None,
-    university: str | None = None,
-) -> Material:
-    tipo = text(material_type, "Tipo").lower()
-    material_class = MATERIAL_TYPES.get(tipo)
+def create_material(material_type: str, title: str, isbn: str, copies: int) -> Material:
+    material_class = MATERIAL_TYPES.get(text(material_type, "Tipo").lower())
     if material_class is None:
         raise ValueError("Tipo de material inválido")
     if copies < 1:
         raise ValueError("Las copias deben ser mayores que cero")
-
     material = material_class(
-        title=text(title, "Título", 200),
-        isbn=text(isbn, "ISBN", 20),
+        title=text(title, "Título"),
+        isbn=text(isbn, "ISBN", 40),
         total_copies=copies,
         available_copies=copies,
-        issue_number=text(issue_number, "Número de edición", 30) if issue_number else None,
-        university=text(university, "Universidad", 150) if university else None,
     )
     db.session.add(material)
     return material
 
 
-def create_book(title: str, isbn: str, copies: int = 1) -> Libro:
+def create_book(title: str, isbn: str, copies: int) -> Libro:
     return create_material("libro", title, isbn, copies)
 
 
@@ -53,33 +41,21 @@ def get_book(book_id: int) -> Libro:
     return material
 
 
-def update_book(book_id: int, title: str | None = None, isbn: str | None = None) -> Material:
+def update_book(book_id, title, isbn):
     return update_material(book_id, title, isbn)
 
 
 @transactional
-def update_material(material_id: int, title: Optional[str] = None, isbn: Optional[str] = None, issue_number: Optional[str] = None, university: Optional[str] = None,copies: Optional[int] = None) -> Material:
+def update_material(material_id: int, title: str | None, isbn: str | None) -> Material:
     material = get_material(material_id)
     if title is not None:
-        material.title = text(title, "Título", 200)
+        material.title = text(title, "Título")
     if isbn is not None:
-        material.isbn = text(isbn, "ISBN", 20)
-    if issue_number is not None:
-        material.issue_number = text(issue_number, "Número de edición", 30)
-    if university is not None:
-        material.university = text(university, "Universidad", 150)
-    if copies is not None:
-        if copies < 1:
-            raise ValueError("Las copias deben ser mayores que cero")
-        diff = copies - material.total_copies
-        if material.available_copies + diff < 0:
-            raise ValueError("No se pueden reducir copias por debajo de los ejemplares prestados")
-        material.total_copies = copies
-        material.available_copies += diff
+        material.isbn = text(isbn, "ISBN", 40)
     return material
 
 
-def delete_book(book_id: int) -> None:
+def delete_book(book_id):
     delete_material(book_id)
 
 

@@ -1,4 +1,3 @@
-from app.main import create_app
-from app.model import db
+from app.main import create_app, db
 
 __all__ = ["create_app", "db"]

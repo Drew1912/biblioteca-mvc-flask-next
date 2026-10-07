@@ -15,10 +15,13 @@ def register_user_commands(library: click.Group) -> None:
     @users.command("create")
     @click.option("--name", required=True)
     @click.option("--email", required=True)
-    @click.option("--role", type=click.Choice(["administrador", "bibliotecario", "doctor", "estudiante"]), required=True)
-    def create_user_command(name: str, email: str, role: str) -> None:
+    @click.option("--role", type=click.Choice([
+        "administrador", "bibliotecario", "docente", "doctor", "estudiante",
+    ]), required=True)
+    @click.option("--documento-identidad")
+    def create_user_command(name: str, email: str, role: str, documento_identidad: str | None) -> None:
         try:
-            user = create_user(name, email, role)
+            user = create_user(name, email, role, documento_identidad=documento_identidad)
         except (IntegrityError, ValueError) as error:
             db.session.rollback()
             raise click.ClickException(str(error))
@@ -44,9 +47,15 @@ def register_user_commands(library: click.Group) -> None:
     @click.option("--id", "user_id", type=int, required=True)
     @click.option("--name")
     @click.option("--email")
-    def update_user_command(user_id: int, name: str | None, email: str | None) -> None:
+    @click.option("--documento-identidad")
+    def update_user_command(
+        user_id: int,
+        name: str | None,
+        email: str | None,
+        documento_identidad: str | None,
+    ) -> None:
         try:
-            update_user(user_id, name, email)
+            update_user(user_id, name, email, documento_identidad)
         except (IntegrityError, ValueError) as error:
             db.session.rollback()
             raise click.ClickException(str(error))

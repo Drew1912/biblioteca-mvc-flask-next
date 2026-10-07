@@ -19,6 +19,7 @@ def user_json(user: Persona) -> dict:
         "id": user.id,
         "name": user.name,
         "email": user.email,
+        "carnetIdentity": user.carnet_identidad,
         "role": user.tipo_persona,
         "active": user.active,
     }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, User } from "../../model/api";
+import { Button } from "@heroui/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function LoginPage() {
     <label className="field">Correo<input type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>
     <label className="field">Contraseña<input type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} /></label>
     {error && <div role="alert" className="error">{error}</div>}
-    <button className="primary" disabled={loading}>{loading ? "Entrando..." : "Iniciar sesión"}</button>
+    <Button className="primary" type="submit" isDisabled={loading}>{loading ? "Entrando..." : "Iniciar sesión"}</Button>
     <p><Link href="/auth/registro">Registro de usuarios</Link></p>
   </form></main>;
 }

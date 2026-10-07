@@ -16,7 +16,14 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   if (path === "/auth/logout") csrfToken = "";
   return data as T;
 }
-export type User = { id: number; name: string; email: string; role: string; active: boolean };
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  carnetIdentity: string;
+  role: string;
+  active: boolean;
+};
 export type Material = { id: number; type: string; title: string; isbn: string; totalCopies: number; availableCopies: number };
 export type Loan = { id: number; material: Material; user: User; dueAt: string; returnedAt: string | null };
 export type Summary = Record<string, number>;

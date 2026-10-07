@@ -1,7 +1,7 @@
 from app.model import catalogo
 from flask import Blueprint, jsonify, request
 
-from app.main import db
+from app.model import db
 from app.controllers.http_security import current_user, roles_required
 from app.view.serializers import user_json
 from app.model.validation import password_value
@@ -21,7 +21,8 @@ def users():
 def create_user_api():
     payload = request.get_json(silent=True) or {}
     try:
-        user = create_user(payload["name"], payload["email"], payload["role"], password_value(payload["password"]))
+        user = create_user(payload["name"], payload["email"], payload["role"],
+                           password_value(payload["password"]), payload.get("documento_identidad"))
     except (KeyError, ValueError) as error:
         db.session.rollback()
         return jsonify({"error": str(error)}), 400
@@ -33,7 +34,12 @@ def create_user_api():
 def edit_user(user_id: int):
     payload = request.get_json(silent=True) or {}
     try:
-        user = update_user(user_id, payload.get("name"), payload.get("email"))
+        user = update_user(
+            user_id,
+            payload.get("name"),
+            payload.get("email"),
+            payload.get("documento_identidad"),
+        )
     except (ValueError) as error:
         db.session.rollback()
         return jsonify({"error": str(error)}), 400

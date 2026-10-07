@@ -1,11 +1,15 @@
-PYTHON := venv/bin/python
+ifeq ($(OS),Windows_NT)
+PYTHON ?= $(if $(wildcard venv/Scripts/python.exe),venv/Scripts/python.exe,python)
+else
+PYTHON ?= $(if $(wildcard venv/bin/python),venv/bin/python,python3)
+endif
 FLASK := $(PYTHON) -m flask --app app.main:create_app
-PODMAN_COMPOSE := podman-compose
+COMPOSE ?= docker compose
 
-.PHONY: install test lint init-db seed console run build up down logs clean
+.PHONY: install test lint init-db seed console run build up down logs clean web-build web-test
 
 install:
-	$(PYTHON) -m pip install -e '.[dev]'
+	$(PYTHON) -m pip install -e ".[dev]"
 
 test:
 	$(PYTHON) -m pytest -q
@@ -29,21 +33,19 @@ run:
 	$(FLASK) library --help
 
 build:
-	$(PODMAN_COMPOSE) build
+	$(COMPOSE) build
 
 up:
-	$(PODMAN_COMPOSE) up -d --force-recreate
+	$(COMPOSE) up -d --force-recreate
 
 down:
-	$(PODMAN_COMPOSE) down
+	$(COMPOSE) down
 
 logs:
-	$(PODMAN_COMPOSE) logs -f
+	$(COMPOSE) logs -f
 
 clean:
-	find . -type d -name '__pycache__' -prune -exec rm -rf {} +
-	rm -rf .pytest_cache
-	rm -rf *.egg-info
+	$(PYTHON) -c "import pathlib, shutil; [shutil.rmtree(path) for path in pathlib.Path('.').rglob('__pycache__')]; shutil.rmtree('.pytest_cache', ignore_errors=True); [shutil.rmtree(path) for path in pathlib.Path('.').glob('*.egg-info') if path.is_dir()]"
 
 web-build:
 	pnpm --dir web build

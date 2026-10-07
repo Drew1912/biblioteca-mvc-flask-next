@@ -17,9 +17,9 @@ export function Loans({ items, materials, users, manage, reload }: {
     finally { setBusy(false); }
   }
   const filtered = items.filter(x => filter === "todos" || status(x) === filter);
-  return <section className="panel"><div className="toolbar"><h2>{manage ? "Préstamos" : "Mis préstamos"}</h2>
-    {manage && <button className="primary" onClick={() => setCreating(true)}>Nuevo préstamo</button>}</div>
-    <label className="field">Estado<select value={filter} onChange={e => setFilter(e.target.value)}>
+  return <section className="panel catalog-panel"><div className="toolbar"><div><span className="section-kicker">Actividad</span><h2>{manage ? "Préstamos" : "Mis préstamos"}</h2></div>
+    {manage && <button className="primary" aria-label="Nuevo préstamo" onClick={() => setCreating(true)}>+ Nuevo préstamo</button>}</div>
+    <label className="filter-field">Estado<select value={filter} onChange={e => setFilter(e.target.value)}>
       {["todos", "Activo", "Vencido", "Devuelto"].map(x => <option key={x}>{x}</option>)}</select></label>
     {creating && <Editor title="Registrar préstamo" path="/loans" method="POST" cancel={() => setCreating(false)}
       done={() => { setCreating(false); reload(); }} fields={[
@@ -29,10 +29,10 @@ export function Loans({ items, materials, users, manage, reload }: {
         { name: "days", label: "Días", type: "number", value: 14, min: 1 },
       ]} />}
     {error && <p role="alert" className="error">{error}</p>}
-    <table className="table"><thead><tr><th>Material</th><th>Persona</th><th>Vence</th><th>Estado</th>{manage && <th>Acciones</th>}</tr></thead>
+    <table className="table"><thead><tr><th>Material</th><th>Persona</th><th>Fecha de vencimiento</th><th>Estado</th>{manage && <th>Acciones</th>}</tr></thead>
       <tbody>{filtered.map(x => <tr key={x.id}><td>{x.material.title}</td><td>{x.user.name}</td>
-        <td>{new Date(x.dueAt).toLocaleDateString("es-BO")}</td><td><span className="pill">{status(x)}</span></td>
-        {manage && <td>{!x.returnedAt && <button disabled={busy} onClick={() => returnLoan(x.id)}>Devolver</button>}</td>}</tr>)}</tbody></table>
+        <td className="muted-cell">{new Date(x.dueAt).toLocaleDateString("es-BO", { day: "2-digit", month: "short", year: "numeric" })}</td><td><span className={`pill loan-status ${status(x).toLowerCase()}`}>{status(x)}</span></td>
+        {manage && <td>{!x.returnedAt && <button className="action-button" aria-label="Devolver" disabled={busy} onClick={() => returnLoan(x.id)}>Marcar devolución</button>}</td>}</tr>)}</tbody></table>
     {!filtered.length && <p>No hay préstamos en este estado.</p>}
   </section>;
 }

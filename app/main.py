@@ -1,8 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from app.model import db # importar la base de datos desde modelo
-from typing import Optional
+from app.model import db
 
 import os
 from datetime import timedelta
@@ -23,12 +21,7 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     MAX_CONTENT_LENGTH = 16384
 
-
-
-#db = SQLAlchemy()
-
-
-def create_app(test_config: Optional[dict] = None) -> Flask:
+def create_app(test_config: dict | None = None) -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
     if test_config:

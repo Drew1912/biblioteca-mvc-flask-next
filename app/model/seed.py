@@ -4,12 +4,12 @@ from datetime import UTC, datetime, timedelta
 
 from app.model import db
 from app.model.material import Libro, Material, Revista, Tesis
-from app.model.persona import Administrador, Bibliotecario, Docente, Estudiante, Persona
+from app.model.persona import Administrador, Bibliotecario, Doctor, Estudiante, Persona
 from app.model.prestamo import Prestamo
 
 
 MATERIAL_TYPES = (Libro, Revista, Tesis)
-USER_TYPES = (Administrador, Bibliotecario, Docente)
+USER_TYPES = (Administrador, Bibliotecario, Doctor)
 
 
 @transactional
@@ -32,11 +32,13 @@ def seed_database(reset: bool = False) -> dict[str, int]:
         for index, material_type in ((index, MATERIAL_TYPES[index % 3]) for index in range(1, 21))
     ]
     students = [
-        Estudiante(name=f"Lector de prueba {index:02d}", email=f"lector{index:02d}@test.local")
+        Estudiante(name=f"Lector de prueba {index:02d}", carnet_identidad=f"LECTOR-{index:02d}",
+                   email=f"lector{index:02d}@test.local")
         for index in range(1, 21)
     ]
     staff = [
-        user_type(name=f"Usuario de prueba {index:02d}", email=f"usuario{index:02d}@test.local")
+        user_type(name=f"Usuario de prueba {index:02d}", carnet_identidad=f"USUARIO-{index:02d}",
+                  email=f"usuario{index:02d}@test.local")
         for index, user_type in ((index, USER_TYPES[index % 3]) for index in range(1, 21))
     ]
     db.session.add_all(materials + students + staff)

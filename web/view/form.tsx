@@ -2,7 +2,7 @@
 import { FormEvent, useState } from "react";
 import { api } from "../model/api";
 export type Field = { name: string; label: string; type?: string; value?: string | number;
-  options?: { value: string | number; label: string }[]; min?: number };
+  options?: { value: string | number; label: string }[]; min?: number; required?: boolean };
 export function Editor({ title, path, method, fields, done, cancel }: {
   title: string; path: string; method: string; fields: Field[]; done: () => void; cancel: () => void;
 }) {
@@ -17,9 +17,10 @@ export function Editor({ title, path, method, fields, done, cancel }: {
   }
   return <form className="editor" onSubmit={submit}><h3>{title}</h3><div className="form-grid">
     {fields.map(field => <label className="field" key={field.name}>{field.label}
-      {field.options ? <select name={field.name} defaultValue={field.value} required>
+      {field.options ? <select name={field.name} defaultValue={field.value} required={field.required !== false}>
         <option value="">Seleccionar…</option>{field.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select> : <input name={field.name} type={field.type ?? "text"} defaultValue={field.value} required
+      </select> : <input name={field.name} type={field.type ?? "text"} defaultValue={field.value}
+        required={field.required !== false}
         min={field.min} maxLength={field.type === "email" ? 254 : 120} minLength={field.type === "password" ? 12 : undefined} />}
     </label>)}
   </div>{error && <p role="alert" className="error">{error}</p>}

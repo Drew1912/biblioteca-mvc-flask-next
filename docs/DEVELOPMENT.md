@@ -5,12 +5,12 @@
 Requiere Python 3.11+, Node 22 y pnpm 10.11.0.
 
 ```bash
-python3 -m venv venv
+python -m venv venv
 make install
 pnpm --dir web install --frozen-lockfile
 make init-db
 make seed
-venv/bin/python -m flask --app app.main:create_app run --port 5000
+python -m flask --app app.main:create_app run --port 5000
 # En otra terminal:
 pnpm --dir web dev
 ```
@@ -28,24 +28,43 @@ Contraseña de desarrollo para todas: `Biblioteca123!`. No publicarlas en produc
 
 ```bash
 make console
-venv/bin/python -m flask --app app.main:create_app library --help
+python -m flask --app app.main:create_app library --help
 ```
 
 No requiere login. Navegar con teclado y mouse; seleccionar entidades por etiqueta.
 
-## Podman
+## Docker Compose
 
 ```bash
-podman-compose config
+docker compose config
 make build
 make up
-podman-compose exec app flask --app app.main:create_app seed --reset
+docker compose exec app flask --app app.main:create_app seed --reset
 ```
 
 `make up` crea tablas, no borra datos ni ejecuta reset. La semilla es explícita.
 PostgreSQL persiste en volumen. `make down` conserva el volumen.
 `make console` ejecuta localmente; para el contenedor usar:
-`podman-compose exec app flask --app app.main:create_app console`.
+`docker compose exec app flask --app app.main:create_app console`.
+
+El `Makefile` usa Docker Compose por defecto y funciona en Windows, Linux y
+macOS. En Windows detecta `venv\Scripts\python.exe`; si no existe, usa
+`python`. En Linux y macOS detecta `venv/bin/python`; si no existe, usa
+`python3`. Para usar Podman de forma explícita:
+
+```bash
+make COMPOSE=podman-compose build
+make COMPOSE=podman-compose up
+```
+
+Para regenerar la documentación visual después de editar la plantilla:
+
+```powershell
+python docs\generar_diagramas.py
+```
+
+Las versiones PNG de los diagramas están en `docs\diagramas-png\`. Se generan
+con un renderizador local de Mermaid y se conservan como documentación estática.
 
 Variables en `.env.example`: DATABASE_URL, SECRET_KEY, WEB_ORIGIN,
 NEXT_PUBLIC_API_URL, SESSION_COOKIE_SECURE y APP_ENV. La URL pública de API se

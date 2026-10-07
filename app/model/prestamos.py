@@ -1,5 +1,5 @@
 from app.model.transaction import transactional
-from datetime import timezone, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from app.model import db
 from app.model.material import Material
@@ -24,7 +24,7 @@ def checkout_book(book_id: int, member_id: int, days: int) -> Prestamo:
     loan = Prestamo(
         material=book,
         persona=member,
-        due_at=datetime.now(timezone.utc) + timedelta(days=days),
+        due_at=datetime.now(UTC) + timedelta(days=days),
     )
     db.session.add(loan)
     return loan
@@ -45,7 +45,7 @@ def return_book(loan_id: int) -> Prestamo:
     db.session.refresh(loan.material, with_for_update=True)
     if loan.returned_at is not None:
         raise ValueError("El préstamo ya fue devuelto")
-    loan.returned_at = datetime.now(timezone.utc)
+    loan.returned_at = datetime.now(UTC)
     loan.material.available_copies += 1
     return loan
 
