@@ -3,7 +3,8 @@ from app.model import db
 
 class Biblioteca:
     """Agregado de dominio que representa el catálogo de la biblioteca."""
-    __tablename__ = 'bibliotecas'
+    
+    #__tablename__ = 'bibliotecas'
     
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
