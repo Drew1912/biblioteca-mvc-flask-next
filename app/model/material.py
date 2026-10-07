@@ -30,18 +30,14 @@ class Material(db.Model):
         issue_number: str | None = None,
         university: str | None = None,
         biblioteca_id: int | None = None,
-        **kwargs,
     ) -> None:
-        super().__init__(
-            title=title,
-            isbn=isbn,
-            total_copies=total_copies,
-            available_copies=available_copies,
-            issue_number=issue_number,
-            university=university,
-            biblioteca_id=biblioteca_id,
-            **kwargs,
-        )
+        self.title = title
+        self.isbn = isbn
+        self.total_copies = total_copies
+        self.available_copies = available_copies
+        self.issue_number = issue_number
+        self.university = university
+        self.biblioteca_id = biblioteca_id
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.id}: {self.title!r}>"
